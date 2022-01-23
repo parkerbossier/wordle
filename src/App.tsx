@@ -19,7 +19,7 @@ const App: React.FC = () => {
 		const lastRow = data.length > 0 && data[data.length - 1];
 		const newRow = guess.split('').map((l, i) => {
 			const alreadyCorrect = (lastRow && lastRow[i].status === 'correct');
-			const status: Wordle.Status = (alreadyCorrect || nextResult.done)
+			const status: Wordle.TileStatus = (alreadyCorrect || nextResult.done)
 				? 'correct'
 				: 'none';
 
@@ -29,10 +29,7 @@ const App: React.FC = () => {
 			};
 		});
 
-		setData([
-			...data,
-			newRow
-		]);
+		setData([...data, newRow]);
 
 		if (nextResult.done)
 			setDone(true);
@@ -45,6 +42,21 @@ const App: React.FC = () => {
 	);
 
 	const lastRowIsValid = data[data.length - 1]?.every(t => t.status !== 'none');
+
+	// this is why we can't have nice things
+	useEffect(
+		() => {
+			function fix100vh() {
+				document.body.style.setProperty('--real100vh', `${window.innerHeight}px`);
+			}
+			fix100vh();
+			window.addEventListener('resize', fix100vh);
+			return () => {
+				window.removeEventListener('resize', fix100vh);
+			};
+		},
+		[]
+	);
 
 	return (
 		<div className={styles.root}>
@@ -74,8 +86,8 @@ const App: React.FC = () => {
 							onClick={() => {
 								const newData = data.slice(0, -1);
 								const newLastRow = [...data[data.length - 1]];
-								const newStatus = incrementStatus(t.status);
-								newLastRow[i] = { ...newLastRow[i], status: newStatus };
+								const newTileStatus = incrementTileStatus(t.status);
+								newLastRow[i] = { ...newLastRow[i], status: newTileStatus };
 								newData.push(newLastRow);
 
 								setData(newData);
@@ -100,8 +112,8 @@ const App: React.FC = () => {
 	);
 }
 
-function incrementStatus(status: Wordle.Status) {
-	const statuses: Wordle.Status[] = ['absent', 'present', 'correct'];
+function incrementTileStatus(status: Wordle.TileStatus) {
+	const statuses: Wordle.TileStatus[] = ['absent', 'present', 'correct'];
 	const index = statuses.indexOf(status);
 	const nextIndex = index > -1 ? (index + 1) % statuses.length : 0;
 	return statuses[nextIndex];

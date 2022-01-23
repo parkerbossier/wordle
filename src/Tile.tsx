@@ -6,7 +6,7 @@ import c from 'classnames';
 interface IProps {
 	letter: string;
 	onClick?: () => void;
-	status: Wordle.Status;
+	status: Wordle.TileStatus;
 }
 
 export const Tile: React.FC<IProps> = ({ letter, onClick, status }) => {

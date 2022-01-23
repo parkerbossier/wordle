@@ -10,8 +10,12 @@ body {
 	--color-tone-7: #121213;
 	--darkendGreen: #538d4e;
 	--darkenedYellow: #b59f3b;
+	--real100vh: 100vh;
 
 	background: var(--color-tone-7);
+
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -22,8 +26,8 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 100vw;
-	height: 100vh;
+	padding: 10px;
+	min-height: var(--real100vh);
 	color: white;
 	font-family: sans-serif;
 }

@@ -67,17 +67,19 @@ const App: React.FC = () => {
 
 	return (
 		<div className={styles.root}>
-			<h1 className={styles.h1}>Wordle Solver</h1>
-			<a
-				className={styles.github}
-				href="https://github.com/parkerbossier/wordle"
-				rel="noreferrer"
-				target="_blank"
-			>
-				Source @ GitHub
-			</a>
+			<header>
+				<h1 className={styles.h1}>Wordle Solver</h1>
 
-			<div className={styles.gridWrapper}>
+				<a
+					href="https://www.powerlanguage.co.uk/wordle/"
+					rel="noreferrer"
+					target="_blank"
+				>
+					(open Wordle)
+				</a>
+			</header>
+
+			<main className={styles.gridWrapper}>
 				<div className={styles.grid}>
 					{gameState.slice(0, -1).map(row => {
 						return row.map((t, i) => (
@@ -109,18 +111,36 @@ const App: React.FC = () => {
 							status={t.status}
 						/>
 					))}
-				</div>
 
-				<button
-					className={c(styles.next, done && styles.next__hide)}
-					onClick={() => {
-						// TODO: sanity checking
-						generateNextRow();
-					}}
+					<button
+						className={c(styles.next, done && styles.next__hide)}
+						onClick={() => {
+							// TODO: sanity checking
+							generateNextRow();
+						}}
+					>
+						Next
+					</button>
+				</div>
+			</main>
+
+			<footer className={styles.footer}>
+				<a
+					href="https://github.com/parkerbossier/wordle"
+					rel="noreferrer"
+					target="_blank"
 				>
-					Next
-				</button>
-			</div>
+					Source @ GitHub
+				</a>
+				{' | '}
+				<a
+					href="https://parkerbossier.com"
+					rel="noreferrer"
+					target="_blank"
+				>
+					parkerbossier.com
+				</a>
+			</footer>
 		</div>
 	);
 }

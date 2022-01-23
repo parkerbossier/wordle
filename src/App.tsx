@@ -11,15 +11,27 @@ const App: React.FC = () => {
 	const [done, setDone] = useState(false);
 
 	function generateNextRow() {
-		const nextResult = algoIterator.next(data);
+		// TODO: default non-selected options to none
 
+		const nextResult = algoIterator.next(data);
 		const guess = nextResult.value;
+
+		const lastRow = data.length > 0 && data[data.length - 1];
+		const newRow = guess.split('').map((l, i) => {
+			const alreadyCorrect = (lastRow && lastRow[i].status === 'correct');
+			const status: Wordle.Status = (alreadyCorrect || nextResult.done)
+				? 'correct'
+				: 'none';
+
+			return {
+				letter: l,
+				status
+			};
+		});
+
 		setData([
 			...data,
-			guess.split('').map(l => ({
-				letter: l,
-				status: nextResult.done ? 'correct' : 'none'
-			}))
+			newRow
 		]);
 
 		if (nextResult.done)

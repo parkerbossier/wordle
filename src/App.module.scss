@@ -1,0 +1,59 @@
+@import './mixins.scss';
+
+body {
+	--color-tone-1: #d7dadc;
+	--color-tone-2: #818384;
+	--color-tone-3: #565758;
+	--color-tone-4: #3a3a3c;
+	--color-tone-5: #272729;
+	--color-tone-6: #1a1a1b;
+	--color-tone-7: #121213;
+	--darkendGreen: #538d4e;
+	--darkenedYellow: #b59f3b;
+
+	background: var(--color-tone-7);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.root {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100vw;
+	height: 100vh;
+	color: white;
+	font-family: sans-serif;
+}
+
+.content {
+	display: flex;
+	align-items: flex-end;
+	flex-direction: column;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(5, auto);
+	gap: 5px;
+}
+
+.lastRowTitle {
+	margin-top: 10px;
+	text-align: center;
+	grid-column: 1 / -1;
+}
+
+.next {
+	@include buttonReset();
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 15px;
+	width: 62px;
+	height: 31px;
+	border: 1px solid var(--color-tone-4);
+	font-weight: bold;
+}

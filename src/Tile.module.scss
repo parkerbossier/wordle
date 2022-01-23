@@ -1,0 +1,26 @@
+@import './mixins.scss';
+
+.root {
+	@include buttonReset();
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 62px;
+	height: 62px;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 32px;
+}
+.root__correct {
+	background: var(--darkendGreen);
+}
+.root__none {
+	border: 2px solid var(--color-tone-4);
+}
+.root__notPresent {
+	
+	background: var(--color-tone-4);
+}
+.root__present {
+	background: var(--darkenedYellow);
+}

@@ -1,7 +1,9 @@
 /// <reference types="react-scripts" />
 
 declare namespace Wordle {
-	type Status = 'correct' | 'none' | 'notPresent' | 'present';
+	type GameState = Wordle.TileState[][];
+	
+	type Status = 'absent' | 'correct' | 'none' | 'present';
 
 	interface TileState {
 		letter: string;

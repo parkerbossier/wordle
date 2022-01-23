@@ -1,35 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Tile } from './Tile';
+import { wordleAlgo } from './wordle-algo';
 import './reset.css';
 import styles from './App.module.scss';
-import { Row } from './Row';
-import { Input } from './Input';
-import { Tile } from './Tile';
 
 const App: React.FC = () => {
-	const [data, setData] = useState<Wordle.TileState[][]>([]);
+	const algoIterator = useMemo(() => wordleAlgo(), []);
+	const [data, setData] = useState<Wordle.GameState>([]);
 
-	const initialWord = 'adieu';
+	function generateNextRow() {
+		const nextResult = algoIterator.next(data);
+
+		console.log(nextResult)
+
+		if (nextResult.done) {
+			console.log('done')
+			return;
+		}
+
+		const newWord = nextResult.value;
+		setData([
+			...data,
+			newWord.split('').map(l => ({
+				letter: l,
+				status: 'none'
+			}))
+		]);
+	}
 
 	useEffect(
-		() => {
-
-		},
-		[]
-	);
-
-	useEffect(
-		() => {
-			setData([
-				// initialWord.split('').map(l => ({
-				// 	letter: l,
-				// 	status: 'none'
-				// })),
-				initialWord.split('').map(l => ({
-					letter: l,
-					status: 'none'
-				}))
-			]);
-		},
+		() => { generateNextRow(); },
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
 
@@ -77,14 +78,8 @@ const App: React.FC = () => {
 					className={styles.next}
 					disabled={!lastRowIsValid}
 					onClick={() => {
-						const newWord = 'pitti';
-						setData([
-							...data,
-							newWord.split('').map(l => ({
-								letter: l,
-								status: 'none'
-							}))
-						]);
+						// TODO: sanity checking
+						generateNextRow();
 					}}
 				>
 					Next
@@ -95,7 +90,7 @@ const App: React.FC = () => {
 }
 
 function incrementStatus(status: Wordle.Status) {
-	const statuses: Wordle.Status[] = ['present', 'correct', 'notPresent'];
+	const statuses: Wordle.Status[] = ['absent', 'present', 'correct'];
 	const index = statuses.indexOf(status);
 	const nextIndex = index > -1 ? (index + 1) % statuses.length : 0;
 	return statuses[nextIndex];

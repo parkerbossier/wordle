@@ -1,9 +1,8 @@
 import c from 'classnames';
 import React, { useEffect, useMemo, useState } from 'react';
+import styles from './App.module.scss';
 import { Tile } from './Tile';
 import { wordleAlgo } from './wordle-algo';
-import styles from './App.module.scss';
-import './reset.css';
 
 const App: React.FC = () => {
 	const algoIterator = useMemo(() => wordleAlgo(), []);
@@ -15,6 +14,10 @@ const App: React.FC = () => {
 
 		const nextResult = algoIterator.next(data);
 		const guess = nextResult.value;
+		if (!guess) {
+			alert('Oh no! No words found. Try again?');
+			window.location.reload();
+		}
 
 		const lastRow = data.length > 0 && data[data.length - 1];
 		const newRow = guess.split('').map((l, i) => {
@@ -40,8 +43,6 @@ const App: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
-
-	const lastRowIsValid = data[data.length - 1]?.every(t => t.status !== 'none');
 
 	// this is why we can't have nice things
 	useEffect(
@@ -99,7 +100,6 @@ const App: React.FC = () => {
 
 				<button
 					className={c(styles.next, done && styles.next__hide)}
-					disabled={!lastRowIsValid || done}
 					onClick={() => {
 						// TODO: sanity checking
 						generateNextRow();

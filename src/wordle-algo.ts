@@ -1,9 +1,17 @@
 import _ from 'lodash';
 import { words } from './words';
 
+/**
+ * A generator implementation of a Wordle solving algorithm.
+ * 
+ * To start, we sort all possible 5 letter words by decreasing entropy and vowel count.
+ * The first guess is always the same.
+ * Subsequent guesses are the first remaining word that isn't excluded by the latest input.
+ * 
+ * The generator is done when it returns the final word.
+ */
 export function* wordleAlgo(): Generator<string, string, Wordle.GameState> {
-	let gameState: Wordle.GameState = [];
-
+	// initialize the options
 	let optionsWithStats = words.map(w => {
 		const letters = _.uniq(w);
 		return {
@@ -20,7 +28,11 @@ export function* wordleAlgo(): Generator<string, string, Wordle.GameState> {
 	});
 	let options = optionsWithStats.map(o => o.word);
 
+	/** The game state, passed by the caller with every iteration */
+	let gameState: Wordle.GameState = [];
+
 	while (true) {
+		// do option filtering if we have a game state to reference
 		if (gameState.length > 0) {
 			const lastRow = gameState[gameState.length - 1];
 
@@ -69,10 +81,14 @@ export function* wordleAlgo(): Generator<string, string, Wordle.GameState> {
 			});
 		}
 
-		if (options.length === 1)
-			return options[0];
+		const guess = options[0];
 
+		// done
+		if (options.length === 1)
+			return guess;
+
+		// not yet done
 		else
-			gameState = yield options[0];
+			gameState = yield guess;
 	}
 }

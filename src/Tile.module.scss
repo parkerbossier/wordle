@@ -12,15 +12,15 @@
 	font-size: 32px;
 }
 .root__correct {
-	background: var(--darkendGreen);
+	background: var(--green);
 }
 .root__none {
-	border: 2px solid var(--color-tone-4);
+	border: 2px solid var(--color-gray);
 }
 .root__absent {
 	
-	background: var(--color-tone-4);
+	background: var(--color-gray);
 }
 .root__present {
-	background: var(--darkenedYellow);
+	background: var(--yellow);
 }

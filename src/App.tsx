@@ -1,4 +1,5 @@
 import c from 'classnames';
+import _ from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './App.module.scss';
 import { Tile } from './Tile';
@@ -6,43 +7,48 @@ import { wordleAlgo } from './wordle-algo';
 
 const App: React.FC = () => {
 	const algoIterator = useMemo(() => wordleAlgo(), []);
-	const [data, setData] = useState<Wordle.GameState>([]);
+	const [gameState, setGameState] = useState<Wordle.GameState>(() => ([
+		algoIterator.next([]).value.split('').map(l => ({
+			letter: l,
+			status: 'none'
+		}))
+	]));
+
 	const [done, setDone] = useState(false);
 
+	/** Assumes one row already exists */
 	function generateNextRow() {
-		// TODO: default non-selected options to none
+		const newState = _.cloneDeep(gameState);
 
-		const nextResult = algoIterator.next(data);
+		// default all untouched tiles to absent
+		newState[newState.length - 1].forEach(t => {
+			if (t.status === 'none')
+				t.status = 'absent';
+		});
+
+		const nextResult = algoIterator.next(newState);
 		const guess = nextResult.value;
 		if (!guess) {
 			alert('Oh no! No words found. Try again?');
 			window.location.reload();
 		}
 
-		const lastRow = data.length > 0 && data[data.length - 1];
+		const lastRow = newState[newState.length - 1];
 		const newRow = guess.split('').map((l, i) => {
-			const alreadyCorrect = (lastRow && lastRow[i].status === 'correct');
-			const status: Wordle.TileStatus = (alreadyCorrect || nextResult.done)
-				? 'correct'
-				: 'none';
-
-			return {
+			const alreadyCorrect = lastRow[i].status === 'correct';
+			const tile: Wordle.TileState = {
 				letter: l,
-				status
+				status: (alreadyCorrect || nextResult.done) ? 'correct' : 'none'
 			};
+			return tile;
 		});
 
-		setData([...data, newRow]);
+		newState.push(newRow);
+		setGameState(newState);
 
 		if (nextResult.done)
 			setDone(true);
 	}
-
-	useEffect(
-		() => { generateNextRow(); },
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[]
-	);
 
 	// this is why we can't have nice things
 	useEffect(
@@ -61,9 +67,19 @@ const App: React.FC = () => {
 
 	return (
 		<div className={styles.root}>
-			<div className={styles.content}>
+			<h1 className={styles.h1}>Wordle Solver</h1>
+			<a
+				className={styles.github}
+				href="https://github.com/parkerbossier/wordle"
+				rel="noreferrer"
+				target="_blank"
+			>
+				Source @ GitHub
+			</a>
+
+			<div className={styles.gridWrapper}>
 				<div className={styles.grid}>
-					{data.slice(0, -1).map(row => {
+					{gameState.slice(0, -1).map(row => {
 						return row.map((t, i) => (
 							<Tile
 								key={i}
@@ -76,22 +92,19 @@ const App: React.FC = () => {
 					<div className={styles.lastRowTitle}>
 						{done
 							? `That's it!`
-							: 'Use the word below, and tap the results.'
+							: 'Use the word below, and enter the results.'
 						}
 					</div>
 
-					{data[data.length - 1]?.map((t, i) => (
+					{gameState[gameState.length - 1]?.map((t, i) => (
 						<Tile
 							key={i}
 							letter={t.letter}
 							onClick={() => {
-								const newData = data.slice(0, -1);
-								const newLastRow = [...data[data.length - 1]];
-								const newTileStatus = incrementTileStatus(t.status);
-								newLastRow[i] = { ...newLastRow[i], status: newTileStatus };
-								newData.push(newLastRow);
-
-								setData(newData);
+								const newState = _.cloneDeep(gameState);
+								const newStatus = incrementTileStatus(t.status);
+								newState[newState.length - 1][i].status = newStatus;
+								setGameState(newState);
 							}}
 							status={t.status}
 						/>
@@ -113,7 +126,7 @@ const App: React.FC = () => {
 }
 
 function incrementTileStatus(status: Wordle.TileStatus) {
-	const statuses: Wordle.TileStatus[] = ['absent', 'present', 'correct'];
+	const statuses: Wordle.TileStatus[] = ['present', 'correct', 'absent'];
 	const index = statuses.indexOf(status);
 	const nextIndex = index > -1 ? (index + 1) % statuses.length : 0;
 	return statuses[nextIndex];

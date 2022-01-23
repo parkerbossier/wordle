@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { words } from './words';
 
-export function* wordleAlgo(): Generator<string, void, Wordle.GameState> {
+export function* wordleAlgo(): Generator<string, string, Wordle.GameState> {
 	let gameState: Wordle.GameState = [];
 
-	let options = words.map(w => {
+	let optionsWithStats = words.map(w => {
 		const letters = _.uniq(w);
 		return {
 			entropy: letters.length,
@@ -12,12 +12,13 @@ export function* wordleAlgo(): Generator<string, void, Wordle.GameState> {
 			word: w
 		}
 	});
-	options.sort((a, b) => {
+	optionsWithStats.sort((a, b) => {
 		return b.entropy - a.entropy;
 	});
-	options.sort((a, b) => {
+	optionsWithStats.sort((a, b) => {
 		return b.vowels - a.vowels;
 	});
+	let options = optionsWithStats.map(o => o.word);
 
 	while (true) {
 		if (gameState.length > 0) {
@@ -31,21 +32,21 @@ export function* wordleAlgo(): Generator<string, void, Wordle.GameState> {
 					// known absent letter present; omit
 					if (
 						lastRow[i].status === 'absent'
-						&& o.word.includes(lastRow[i].letter)
+						&& o.includes(lastRow[i].letter)
 					)
 						return false;
 
 					// known correct letter mismatch; omit
 					else if (
 						lastRow[i].status === 'correct'
-						&& lastRow[i].letter !== o.word[i]
+						&& lastRow[i].letter !== o[i]
 					)
 						return false;
 
 					// known present letter matches the word; omit
 					else if (
 						lastRow[i].status === 'present'
-						&& lastRow[i].letter === o.word[i]
+						&& lastRow[i].letter === o[i]
 					)
 						return false;
 
@@ -55,7 +56,7 @@ export function* wordleAlgo(): Generator<string, void, Wordle.GameState> {
 
 				// if we have present/correct letters, make sure each is present
 				if (presentLetters.length > 0) {
-					o.word.split('').forEach(optionLetter => {
+					o.split('').forEach(optionLetter => {
 						const i = presentLetters.findIndex(l => l === optionLetter);
 						if (i !== -1)
 							presentLetters.splice(i, 1);
@@ -68,13 +69,10 @@ export function* wordleAlgo(): Generator<string, void, Wordle.GameState> {
 			});
 		}
 
-		console.log(gameState)
+		if (options.length === 1)
+			return options[0];
 
-		gameState = yield options[0].word;
+		else
+			gameState = yield options[0];
 	}
-}
-
-function getRandomItem<T>(list: T[]) {
-	const index = Math.floor(Math.random() * list.length);
-	return list[index];
 }

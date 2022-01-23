@@ -1,31 +1,29 @@
+import c from 'classnames';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Tile } from './Tile';
 import { wordleAlgo } from './wordle-algo';
-import './reset.css';
 import styles from './App.module.scss';
+import './reset.css';
 
 const App: React.FC = () => {
 	const algoIterator = useMemo(() => wordleAlgo(), []);
 	const [data, setData] = useState<Wordle.GameState>([]);
+	const [done, setDone] = useState(false);
 
 	function generateNextRow() {
 		const nextResult = algoIterator.next(data);
 
-		console.log(nextResult)
-
-		if (nextResult.done) {
-			console.log('done')
-			return;
-		}
-
-		const newWord = nextResult.value;
+		const guess = nextResult.value;
 		setData([
 			...data,
-			newWord.split('').map(l => ({
+			guess.split('').map(l => ({
 				letter: l,
-				status: 'none'
+				status: nextResult.done ? 'correct' : 'none'
 			}))
 		]);
+
+		if (nextResult.done)
+			setDone(true);
 	}
 
 	useEffect(
@@ -51,7 +49,10 @@ const App: React.FC = () => {
 					})}
 
 					<div className={styles.lastRowTitle}>
-						Use the word below, and tap the results.
+						{done
+							? `That's it!`
+							: 'Use the word below, and tap the results.'
+						}
 					</div>
 
 					{data[data.length - 1]?.map((t, i) => (
@@ -65,8 +66,6 @@ const App: React.FC = () => {
 								newLastRow[i] = { ...newLastRow[i], status: newStatus };
 								newData.push(newLastRow);
 
-								// console.log(newData, newLastRow, newStatus)
-
 								setData(newData);
 							}}
 							status={t.status}
@@ -75,8 +74,8 @@ const App: React.FC = () => {
 				</div>
 
 				<button
-					className={styles.next}
-					disabled={!lastRowIsValid}
+					className={c(styles.next, done && styles.next__hide)}
+					disabled={!lastRowIsValid || done}
 					onClick={() => {
 						// TODO: sanity checking
 						generateNextRow();

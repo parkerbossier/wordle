@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { officialWords } from './offical-words';
 import { words } from './words';
 
 /**
@@ -12,7 +13,7 @@ import { words } from './words';
  */
 export function* wordleAlgo(): Generator<string, string, Wordle.GameState> {
 	// initialize the options
-	let optionsWithStats = words.map(w => {
+	let optionsWithStats = officialWords.map(w => {
 		const letters = _.uniq(w);
 		return {
 			entropy: letters.length,

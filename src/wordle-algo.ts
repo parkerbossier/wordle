@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { officialWords } from './offical-words';
-import { words } from './words';
 
 /**
  * A generator implementation of a Wordle solving algorithm.
